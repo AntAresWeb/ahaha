@@ -27,11 +27,18 @@ def get_user_token_pair():
 
 def get_user_auth_code():
     data = {
-        "response_type": "code",
+        "response_type": "authorization_code",
         "client_id": CLIENT_ID,
+        "redirect_uri": "http://localhost:8000/callback"
     }
-    response = httpx.post(url="https://hh.ru/oauth/authorize", data=data, timeout=3)
-    print(response.status_code)
-    print(response.__dir__)
+    headers = {
+        "User-Agent": "MyApp/1.0 (antares_hh)",
+    }
+
+    response = httpx.get(url=f"https://hh.ru/oauth/authorize?response_type={data["response_type"]}&client_id={data['client_id']}", headers=headers)
+    with open("request.txt", "w") as file:
+        for key, val in response.__dict__.items():
+            file.write(f"[{key}]\n")
+            file.write(f"{val}\n")
 
 get_user_auth_code()
