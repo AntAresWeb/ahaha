@@ -24,10 +24,15 @@ class FetchAndSaveVacanciesUseCase:
     async def execute(self, keyword: str, criteria: Criteria) -> int:
         """
         Выполняет сценарий.
+
+        Args:
+            keyword: Ключевое слово для поиска (например, "python")
+            criteria: Критерии отбора вакансий
+
         Returns:
             int: Количество сохранённых вакансий.
         """
-        # 1. Получаем вакансии из внешнего источника (HH.ru)
+        # 1. Получаем вакансии из внешнего источника
         raw_vacancies = await self.source.search_by_keyword(keyword)
 
         # 2. Фильтруем по критериям

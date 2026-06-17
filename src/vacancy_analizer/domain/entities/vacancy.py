@@ -6,6 +6,7 @@ from datetime import datetime
 class Vacancy:
     external_id: str                   # "133473143"
     name: str                          # "Python-разработчик (Django)"
+    employer_id: str                   # "123123"
     employer_name: str                 # "Shtab"
     requirement: str                   # HTML-фрагмент требований
     responsibility: str                # HTML-фрагмент обязанностей
