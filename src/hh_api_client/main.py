@@ -2,11 +2,11 @@
 from contextlib import asynccontextmanager
 
 import httpx
-from config import get_settings
+from vacancy_analizer.share.config import get_settings
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-from models import AuthURLResponse, ErrorResponse, StatusResponse, UserInfo, VacancySearchParams
-from oauth_hh import auth_client
+from vacancy_analizer.presentation.api.schemas.tokens import AuthURLResponse, ErrorResponse, StatusResponse, UserInfo, VacancySearchParams
+from vacancy_analizer.infrastructure.api_clients.hh_oauth_client import auth_client
 
 settings = get_settings()
 

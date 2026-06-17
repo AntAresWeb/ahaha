@@ -70,8 +70,8 @@ class UserInfo(BaseModel):
                 "email": "ivan@example.com",
                 "is_applicant": True,
                 "is_employer": False,
-            }
-        }
+            },
+        },
     )
 
     @property

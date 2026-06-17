@@ -7,3 +7,5 @@ wheels/
 .venv
 .env
 tokens.json
+src/hh_api_client/
+_concept/

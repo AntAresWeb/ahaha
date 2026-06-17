@@ -1,13 +1,12 @@
-# auth.py
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 import httpx
-from config import get_settings
 from fastapi import HTTPException
-from models import TokenResponse, TokenSet
+
+from src.vacancy_analizer.presentation.api.schemas.tokens import TokenResponse, TokenSet
+from src.vacancy_analizer.share.config import get_settings
 
 settings = get_settings()
 
@@ -78,7 +77,7 @@ class TokenStorage:
         }
 
 
-class HHAuthClient:
+class HHOAuthClient:
     """Клиент для работы с OAuth HH.ru (асинхронный)"""
 
     def __init__(self) -> None:
@@ -89,7 +88,7 @@ class HHAuthClient:
         """Получает или создает HTTP клиент"""
         if self._client is None or self._client.is_closed:
             self._client = httpx.AsyncClient(
-                timeout=settings.http_timeout, limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
+                timeout=settings.http_timeout, limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
             )
         return self._client
 
@@ -103,7 +102,7 @@ class HHAuthClient:
         return (
             f"{settings.oauth_authorize_url}"
             f"?response_type=code"
-            f"&client_id={settings.hh_client_id}"
+            f"&client_id={settings.hh_app_id}"
             f"&redirect_uri={settings.hh_redirect_uri}"
         )
 
@@ -160,9 +159,8 @@ class HHAuthClient:
             self.token_storage.save(token_set)
             print(f"[{datetime.now()}] Токены успешно обновлены в {self.token_storage.token_path}")
             return token_set
-        else:
-            print(f"[{datetime.now()}] Ошибка обновления токенов: {response.status_code} - {response.text}")
-            return None
+        print(f"[{datetime.now()}] Ошибка обновления токенов: {response.status_code} - {response.text}")
+        return None
 
     async def get_valid_access_token(self) -> str:
         """
@@ -180,11 +178,10 @@ class HHAuthClient:
             new_tokens = await self.refresh_access_token(tokens.refresh_token)
             if new_tokens:
                 return new_tokens.access_token
-            else:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Не удалось обновить токен. Требуется повторная авторизация через GET /auth/login",
-                )
+            raise HTTPException(
+                status_code=401,
+                detail="Не удалось обновить токен. Требуется повторная авторизация через GET /auth/login",
+            )
 
         if not tokens.is_valid:
             # Токен истек, пробуем обновить
@@ -192,11 +189,10 @@ class HHAuthClient:
             new_tokens = await self.refresh_access_token(tokens.refresh_token)
             if new_tokens:
                 return new_tokens.access_token
-            else:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Токен истек и не может быть обновлен. Требуется повторная авторизация через GET /auth/login",
-                )
+            raise HTTPException(
+                status_code=401,
+                detail="Токен истек и не может быть обновлен. Требуется повторная авторизация через GET /auth/login",
+            )
 
         return tokens.access_token
 

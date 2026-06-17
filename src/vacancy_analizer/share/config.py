@@ -5,11 +5,24 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Настройки приложения"""
 
-    # HH.ru OAuth
-    hh_client_id: str = Field(..., alias="HH_CLIENT_ID", description="Client ID приложения")
-    hh_client_secret: str = Field(..., alias="HH_CLIENT_SECRET", description="Client Secret приложения")
+    # HH.ru application params
+    hh_app_name: str = Field(
+        default="VacancyAnalizer/1.0 (test@example.com)",
+        alias="HH_APP_NAME",
+        description="Name приложения",
+    )
+    hh_app_id: str = Field(
+        default="client_id",
+        alias="HH_APP_ID",
+        description="ID приложения",
+    )
+    hh_app_secret: str = Field(
+        default="client_secret",
+        alias="HH_APP_SECRET",
+        description="Client Secret приложения",
+    )
     hh_redirect_uri: str = Field(
-        default="http://localhost:8080/callback",
+        default="http://localhost:8080/auth/callback",
         alias="HH_REDIRECT_URI",
         description="URI для редиректа после авторизации",
     )
@@ -27,19 +40,40 @@ class Settings(BaseSettings):
     )
 
     # Application settings
-    token_file: str = Field(default="tokens.json", alias="TOKEN_FILE", description="Файл для хранения токенов")
+    token_file: str = Field(
+        default="tokens.json",
+        alias="TOKEN_FILE",
+        description="Файл для хранения токенов",
+    )
     auto_refresh_threshold_seconds: int = Field(
         default=300,
         alias="AUTO_REFRESH_THRESHOLD_SECONDS",
         description="За сколько секунд до истечения токена начинать обновление",
     )
-    log_level: str = Field(default="INFO", alias="LOG_LEVEL", description="Уровень логирования")
+    log_level: str = Field(
+        default="INFO",
+        alias="LOG_LEVEL",
+        description="Уровень логирования",
+    )
 
     # HTTP Client settings
-    http_timeout: int = Field(default=30, alias="HTTP_TIMEOUT", description="Таймаут для HTTP запросов в секундах")
-    max_retries: int = Field(default=3, alias="MAX_RETRIES", description="Максимальное количество повторных попыток")
+    http_timeout: int = Field(
+        default=30,
+        alias="HTTP_TIMEOUT",
+        description="Таймаут для HTTP запросов в секундах",
+    )
+    max_retries: int = Field(
+        default=3,
+        alias="MAX_RETRIES",
+        description="Максимальное количество повторных попыток",
+    )
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
     @property
     def oauth_authorize_url(self) -> str:
