@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from datetime import datetime
 from src.vacancy_analizer.domain.entities.vacancy import Vacancy
 from src.vacancy_analizer.domain.entities.criteria import Criteria
-from src.vacancy_analizer.application.services.fetch_and_save_vacancies import FetchAndSaveVacanciesUseCase
+from src.vacancy_analizer.application.usecases.fetch_and_save_vacancies import FetchAndSaveVacanciesUseCase
 from src.vacancy_analizer.application.services.vacancy_filter import VacancyFilterService
 from src.vacancy_analizer.application.ports.vacancy_source import VacancySource
 from src.vacancy_analizer.application.ports.vacancy_repository import VacancyRepository
@@ -27,6 +27,7 @@ async def test_usecase_saves_only_relevant_vacancies():
         external_id="1",
         name="Python Developer (High Salary)",
         employer_name="Tech Corp",
+        employer_id = "1",
         requirement="Python, Django, PostgreSQL",
         responsibility="Write clean code",
         published_at=datetime(2026, 6, 10, 12, 0, 0),
@@ -47,6 +48,7 @@ async def test_usecase_saves_only_relevant_vacancies():
         external_id="2",
         name="Python Developer (Low Salary)",
         employer_name="Small Startup",
+        employer_id = "2",
         requirement="Basic Python",
         responsibility="Fix bugs",
         published_at=datetime(2026, 6, 10, 12, 0, 0),
@@ -114,6 +116,7 @@ async def test_usecase_does_not_save_duplicates():
         external_id="1",
         name="Python Developer",
         employer_name="Tech Corp",
+        employer_id = "1",
         requirement="Python",
         responsibility="Write code",
         published_at=datetime(2026, 6, 10, 12, 0, 0),

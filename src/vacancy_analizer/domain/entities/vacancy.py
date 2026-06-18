@@ -22,3 +22,4 @@ class Vacancy:
     area_id: str | None =  None        # ID региона
     experience_id: str | None = None   # "between1And3"
     experience_name: str | None = None # "От 1 года до 3 лет"
+    company_logo_url: str | None = None

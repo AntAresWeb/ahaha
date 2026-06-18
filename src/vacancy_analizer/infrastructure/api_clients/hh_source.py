@@ -16,7 +16,7 @@ class HHVacancySource(VacancySource):
     Адаптер для получения вакансий из API HH.ru.
     Реализует порт VacancySource.
     """
-
+    # TODO(webantares): убрать хардкодинг, брать все константы из settings или модуля констант
     def __init__(
         self,
         base_url: str = "https://api.hh.ru",
