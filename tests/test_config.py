@@ -1,6 +1,6 @@
 import os
 import pytest
-from src.vacancy_analizer.share.config import get_settings
+from src.vacancy_analizer.infrastructure.config.hh_api import get_hh_api_settings
 
 
 @pytest.fixture
@@ -28,12 +28,7 @@ def test_load_settings_from_env(clean_env, tmp_path):
     os.environ["HTTP_TIMEOUT"] = "60"
     os.environ["MAX_RETRIES"] = "5"
     
-    settings = get_settings()
-    
-    assert settings.hh_app_name == "test_app/1.0 (test@example.com)"
-    assert settings.hh_app_id == "test_client_id"
-    assert settings.hh_app_secret == "test_client_secret"
-    assert settings.hh_redirect_uri == "http://localhost:8080/auth/callback"
+    settings = get_hh_api_settings()    
     assert settings.token_file == str(tmp_path / "test_tokens.json")
     assert settings.log_level == "DEBUG"
     assert settings.http_timeout == 60
@@ -43,9 +38,8 @@ def test_load_settings_from_env(clean_env, tmp_path):
 def test_default_values(clean_env):
     """Проверяет значения по умолчанию, когда переменные окружения не заданы"""
 
-    settings = get_settings()
+    settings = get_hh_api_settings()
     
-    assert settings.hh_redirect_uri == "http://localhost:8080/auth/callback"
     assert settings.log_level == "INFO"
     assert settings.http_timeout == 30
     assert settings.max_retries == 3

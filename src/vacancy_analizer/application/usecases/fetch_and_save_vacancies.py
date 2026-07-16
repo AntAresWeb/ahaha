@@ -1,8 +1,12 @@
-from src.vacancy_analizer.application.ports.vacancy_repository import VacancyRepository
+import logging
+from collections.abc import Callable
+
+from src.vacancy_analizer.application.ports.unit_of_work import UnitOfWork
 from src.vacancy_analizer.application.ports.vacancy_source import VacancySource
 from src.vacancy_analizer.application.services.vacancy_filter import VacancyFilterService
 from src.vacancy_analizer.domain.entities.criteria import Criteria
-from src.vacancy_analizer.domain.entities.vacancy import Vacancy
+
+logger = logging.getLogger(__name__)
 
 
 class FetchAndSaveVacanciesUseCase:
@@ -13,37 +17,39 @@ class FetchAndSaveVacanciesUseCase:
     def __init__(
         self,
         source: VacancySource,
-        repository: VacancyRepository,
         filter_service: VacancyFilterService,
+        uow_factory: Callable[[], UnitOfWork],
     ) -> None:
         self.source = source
-        self.repository = repository
         self.filter_service = filter_service
-
+        self.uow_factory = uow_factory
 
     async def execute(self, keyword: str, criteria: Criteria) -> int:
         """
         Выполняет сценарий.
-
         Args:
             keyword: Ключевое слово для поиска (например, "python")
             criteria: Критерии отбора вакансий
-
         Returns:
             int: Количество сохранённых вакансий.
         """
-        # 1. Получаем вакансии из внешнего источника
-        raw_vacancies = await self.source.search_by_keyword(keyword)
+        # 1. Получаем вакансии из внешнего источника (все страницы)
+        logger.info("Начинаем поиск вакансий по ключевому слову: %s", keyword)
+        raw_vacancies = await self.source.search_all_pages(keyword)
+        logger.debug("Получено %d вакансий из источника", len(raw_vacancies))
 
         # 2. Фильтруем по критериям
         relevant_vacancies = self.filter_service.filter_by_criteria(
-            raw_vacancies, criteria,
+            raw_vacancies, criteria
         )
+        logger.info("После фильтрации осталось %d вакансий", len(relevant_vacancies))
 
-        # 3. Сохраняем только релевантные (проверяем дубли внутри)
-        saved_count = 0
-        for vacancy in relevant_vacancies:
-            if await self.repository.save(vacancy):
-                saved_count += 1
+        if not relevant_vacancies:
+            return 0
 
-        return saved_count
+        # 3. Сохраняем через UnitOfWork
+        async with self.uow_factory() as uow:
+            saved_count = await uow.vacancies.save_batch(relevant_vacancies)
+            await uow.commit()
+            logger.info("Сохранено %d вакансий", saved_count)
+            return saved_count

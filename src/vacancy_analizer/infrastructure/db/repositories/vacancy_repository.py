@@ -1,11 +1,12 @@
 import logging
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.vacancy_analizer.application.ports.vacancy_repository import VacancyRepository
 from src.vacancy_analizer.domain.entities.vacancy import Vacancy
-from src.vacancy_analizer.infrastructure.db.mappers.vacancy_mapper import orm_to_vacancy, vacancy_to_orm
+from src.vacancy_analizer.infrastructure.db.mappers.vacancy_mapper import orm_to_vacancy, vacancy_to_orm_dict
 from src.vacancy_analizer.infrastructure.db.models.vacancy import VacancyORM
 
 logger = logging.getLogger(__name__)
@@ -18,25 +19,32 @@ class PostgresVacancyRepository(VacancyRepository):
         self._session = session
 
 
-    async def save(self, vacancy: Vacancy) -> bool:
-        """
-        Сохраняет вакансию в БД.
-        Returns:
-            bool: True если сохранена, False если дубликат.
-        """
-        # Проверяем, существует ли уже
-        existing = await self.get_by_id(vacancy.external_id)
-        if existing:
-            logger.debug(f"Вакансия {vacancy.external_id} уже существует")
-            return False
+    async def save_batch(self, vacancies: list[Vacancy]) -> int:
+        """Сохраняет или обновляет список вакансий через UPSERT."""
 
-        # Преобразуем в ORM и сохраняем
-        orm_vacancy = vacancy_to_orm(vacancy)
-        self._session.add(orm_vacancy)
-        await self._session.commit()
+        if not vacancies:
+            return 0
 
-        logger.info(f"Сохранена вакансия {vacancy.external_id}: {vacancy.name}")
-        return True
+        values = [vacancy_to_orm_dict(v) for v in vacancies]
+        stmt = insert(VacancyORM).values(values)
+
+        stmt = stmt.on_conflict_do_update(
+            constraint="vacancies_pkey",
+            set_={
+                "name": stmt.excluded.name,
+                "employer_name": stmt.excluded.employer_name,
+                "salary_from": stmt.excluded.salary_from,
+                "salary_to": stmt.excluded.salary_to,
+                "updated_at": stmt.excluded.updated_at,
+                # Остальные поля аналогично
+            },
+        )
+
+        result = await self._session.execute(stmt)
+
+        affected_rows = result.rowcount
+        logger.info(f"Сохранено/обновлено вакансий: {affected_rows}")
+        return affected_rows
 
 
     async def get_by_id(self, external_id: str) -> Vacancy | None:

@@ -3,7 +3,7 @@ import pytest
 import httpx
 
 from src.vacancy_analizer.infrastructure.api_clients.hh_client import VacancyFetcher
-from src.vacancy_analizer.share.config import get_settings
+from src.vacancy_analizer.infrastructure.config.hh_api import get_hh_api_settings
 
 
 @pytest.mark.asyncio
@@ -27,7 +27,7 @@ async def test_fetch_sends_required_user_agent_header(httpx_mock):
     
     request = httpx_mock.get_request()
     assert "HH-User-Agent" in request.headers
-    assert request.headers["HH-User-Agent"] == get_settings().hh_app_name
+    assert request.headers["HH-User-Agent"] == get_hh_api_settings().hh_app_name
 
 
 @pytest.mark.asyncio

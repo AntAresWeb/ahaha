@@ -7,11 +7,10 @@ class VacancyRepository(ABC):
     """Порт для хранения и поиска вакансий в БД"""
 
     @abstractmethod
-    async def save(self, vacancy: Vacancy) -> bool:
+    async def save_batch(self, vacancies: list[Vacancy]) -> int:
         """
-        Сохраняет вакансию, если её ещё нет.
-        Returns:
-            bool: True если вакансия сохранена, False если дубликат.
+        Сохраняет или обновляет список вакансий.
+        Возвращает количество успешно обработанных записей.
         """
         ...
 

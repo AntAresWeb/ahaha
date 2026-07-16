@@ -1,8 +1,8 @@
 from httpx import AsyncClient
 
-from src.vacancy_analizer.share.config import get_settings
+from src.vacancy_analizer.infrastructure.config.hh_api import get_hh_api_settings
 
-settings = get_settings()
+api_settings = get_hh_api_settings()
 
 
 class VacancyFetcher:
@@ -10,9 +10,9 @@ class VacancyFetcher:
         self,
         per_page: int = 10,
     ) -> None:
-        self.base_url = settings.hh_api_base_url
+        self.base_url = api_settings.api_base_url
         self.per_page = per_page
-        self.user_agent = settings.hh_app_name
+        self.user_agent = api_settings.app_name
 
 
     async def fetch(self, key: str) -> list:
