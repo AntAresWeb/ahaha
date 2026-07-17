@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 from src.vacancy_analizer.domain.entities.criteria import Criteria
 from src.vacancy_analizer.domain.entities.vacancy import Vacancy
 from datetime import datetime
-from src.vacancy_analizer.infrastructure.config.hh_api import HHAPISettings
+from shared.config.hh_api import HHAPISettings
 
 
 @pytest.fixture

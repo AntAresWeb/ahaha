@@ -21,3 +21,4 @@ class Settings(BaseSettings):
         alias="LOG_LEVEL",
         description="Уровень логирования",
     )
+

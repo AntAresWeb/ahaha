@@ -3,7 +3,7 @@ import pytest
 import httpx
 
 from src.vacancy_analizer.infrastructure.api_clients.hh_client import VacancyFetcher
-from src.vacancy_analizer.infrastructure.config.hh_api import get_hh_api_settings
+from shared.config.hh_api import get_hh_api_settings
 
 
 @pytest.mark.asyncio

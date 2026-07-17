@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from pydantic import Field, SecretStr
 
-from src.vacancy_analizer.infrastructure.config.base import Settings
+from shared.config.base import Settings
 
 
 class PostgresSettings(Settings):

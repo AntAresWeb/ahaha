@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 
-from src.vacancy_analizer.infrastructure.config.hh_api import get_hh_api_settings
+from shared.config.hh_api import get_hh_api_settings
 
 api_settings = get_hh_api_settings()
 

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import AsyncAdaptedQueuePool
 
-from src.vacancy_analizer.infrastructure.config.postgres import (
+from shared.config.postgres import (
     PostgresSettings,
     get_postgres_settings,
 )
