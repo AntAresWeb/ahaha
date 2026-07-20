@@ -1,0 +1,104 @@
+@startuml
+!define RECTANGLE class
+
+' Определение стилей
+skinparam componentStyle rectangle
+skinparam backgroundColor #FEFEFE
+skinparam component {
+  BackgroundColor #E1F5FE
+  BorderColor #0288D1
+  FontColor #01579B
+  FontSize 12
+}
+skinparam node {
+  BackgroundColor #F3E5F5
+  BorderColor #7B1FA2
+  FontColor #4A148C
+}
+
+' Определение контекстов как компонентов (вертикально)
+package "Shared Kernel" #F3E5F5 {
+  [Resume] as Resume
+  [Settings] as Settings
+  [Base Entities] as Base
+}
+
+package "Fetcher Context" #BBDEFB {
+  [Vacancy] as Vacancy
+  [VacancyFilter] as Filter
+  [FetchVacanciesUseCase] as FetchUC
+  [HH API Client] as HHClient
+}
+
+package "Analyzer Context" #C8E6C9 {
+  [Analysis] as Analysis
+  [MatchScore] as Match
+  [AnalyzeVacancyUseCase] as AnalyzeUC
+  [LLM Client] as LLMClient
+  [Response Generator] as ResponseGen
+}
+
+package "Sender Context" #FFE0B2 {
+  [Response] as Response
+  [RateLimit] as RateLimit
+  [SendResponseUseCase] as SendUC
+  [HH Sender Client] as HHSender
+}
+
+' Определение очередей
+queue "RabbitMQ\nanalyzer.pending" as Queue1
+queue "RabbitMQ\nsender.ready" as Queue2
+
+' ВЕРТИКАЛЬНЫЕ СВЯЗИ (сверху вниз)
+' 1. Связи от Shared Kernel к контекстам
+Settings --> FetchUC : "конфигурирует"
+Settings --> AnalyzeUC : "конфигурирует"
+Settings --> SendUC : "конфигурирует"
+
+Resume --> AnalyzeUC : "используется для анализа"
+Vacancy --> AnalyzeUC : "используется для анализа"
+Analysis --> SendUC : "используется для отправки"
+
+' 2. Поток данных через очереди
+FetchUC --> Queue1 : "публикует команду\n(analyze_vacancy)"
+Queue1 --> AnalyzeUC : "доставляет команду"
+
+AnalyzeUC --> Queue2 : "публикует команду\n(send_response)"
+Queue2 --> SendUC : "доставляет команду"
+
+' 3. Внутренние связи в контекстах
+FetchUC --> Vacancy : "создает"
+FetchUC --> Filter : "использует"
+FetchUC --> HHClient : "вызывает"
+
+AnalyzeUC --> Analysis : "обновляет"
+AnalyzeUC --> Match : "вычисляет"
+AnalyzeUC --> LLMClient : "вызывает"
+AnalyzeUC --> ResponseGen : "генерирует"
+
+SendUC --> Response : "создает"
+SendUC --> RateLimit : "проверяет"
+SendUC --> HHSender : "вызывает"
+
+' 4. Связи с Shared Kernel (чтение данных)
+Vacancy ..> Resume : "связана с"
+Analysis ..> Vacancy : "ссылается на"
+Analysis ..> Resume : "ссылается на"
+
+' Легенда
+legend right
+  | <#BBDEFB> | Fetcher Context (получение вакансий) |
+  | <#C8E6C9> | Analyzer Context (LLM-анализ) |
+  | <#FFE0B2> | Sender Context (отправка откликов) |
+  | <#F3E5F5> | Shared Kernel (общие сущности) |
+  | <#FFFFFF> | Очередь сообщений (RabbitMQ) |
+  | <#FFFFFF> | Связь через очередь (асинхронная) |
+  | <#FFFFFF> | Прямая зависимость (синхронная) |
+end legend
+
+' Добавляем триггеры сверху
+note top of FetchUC : "Триггер: расписание \nили команда из Gateway"
+note top of Queue1 : "Асинхронный обмен\n(слабая связанность)"
+note top of Queue2 : "Асинхронный обмен\n(слабая связанность)"
+
+@enduml

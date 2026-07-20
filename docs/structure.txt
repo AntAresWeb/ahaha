@@ -1,0 +1,154 @@
+ahaha/
+├── docker-compose.yml
+├── .env.example
+├── pyproject.toml
+├── README.md
+│
+├── shared/                                # Общий код для всех сервисов
+│   ├── domain/                            # Общие сущности и объекты-значения
+│   │   ├── __init__.py
+│   │   ├── entities/
+│   │   │   ├── __init__.py
+│   │   │   ├── resume.py                  # Resume сущность
+│   │   │   ├── vacancy.py                 # Vacancy сущность
+│   │   │   └── analysis.py                # Analysis сущность
+│   │   └── value_objects/
+│   │       ├── __init__.py
+│   │       ├── skills.py                  # Value Object для навыков
+│   │       ├── match_score.py             # Value Object для оценки
+│   │       └── status.py                  # Статусы (Enum)
+│   │
+│   ├── infrastructure/                    # Технические детали
+│   │   ├── __init__.py
+│   │   ├── database/
+│   │   │   ├── __init__.py
+│   │   │   ├── session.py                 # Управление сессиями
+│   │   │   └── unit_of_work.py            # Unit of Work паттерн
+│   │   ├── repositories/                  # Реализации репозиториев
+│   │   │   ├── __init__.py
+│   │   │   ├── resume_repository.py
+│   │   │   ├── vacancy_repository.py
+│   │   │   └── analysis_repository.py
+│   │   └── message_bus/                   # RabbitMQ
+│   │       ├── __init__.py
+│   │       ├── connection.py
+│   │       ├── publisher.py
+│   │       └── consumer.py
+│   │
+│   └── config/                            # Общие настройки
+│       ├── __init__.py
+│       ├── base.py
+│       ├── development.py
+│       └── production.py
+│
+├── services/
+│   ├── gateway/                           # Веб-интерфейс (FastAPI)
+│   │   ├── Dockerfile
+│   │   ├── pyproject.toml
+│   │   └── app/
+│   │       ├── __init__.py
+│   │       ├── main.py                    # FastAPI приложение
+│   │       ├── interfaces/                # Адаптеры для веба
+│   │       │   ├── __init__.py
+│   │       │   ├── routers/               # Эндпоинты
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── vacancies.py
+│   │       │   │   ├── analyses.py
+│   │       │   │   └── settings.py
+│   │       │   └── templates/             # Jinja2 шаблоны
+│   │       │       ├── dashboard.html
+│   │       │       └── settings.html
+│   │       ├── application/               # Команды для UI
+│   │       │   ├── __init__.py
+│   │       │   └── commands/
+│   │       │       ├── start_parsing.py
+│   │       │       └── get_statistics.py
+│   │       └── config/                    # Специфичные настройки
+│   │           └── __init__.py
+│   │
+│   ├── fetcher/                           # Микросервис-парсер
+│   │   ├── Dockerfile
+│   │   ├── pyproject.toml
+│   │   └── app/
+│   │       ├── __init__.py
+│   │       ├── main.py                    # Consumer для RabbitMQ
+│   │       ├── domain/                    # Специфичные сущности
+│   │       │   ├── __init__.py
+│   │       │   ├── entities/
+│   │       │   │   └── vacancy_filter.py  # Фильтр для HH
+│   │       │   └── services/
+│   │       │       └── vacancy_parser.py  # Парсинг HH
+│   │       ├── application/               # Юзкейсы
+│   │       │   ├── __init__.py
+│   │       │   └── use_cases/
+│   │       │       ├── fetch_vacancies.py
+│   │       │       └── filter_vacancies.py
+│   │       ├── interfaces/                # Адаптеры
+│   │       │   ├── __init__.py
+│   │       │   ├── hh_client.py           # HH API Client (Port)
+│   │       │   └── message_handlers.py    # Обработчики сообщений
+│   │       └── infrastructure/            # Реализации
+│   │           ├── __init__.py
+│   │           └── adapters/
+│   │               └── hh_client_impl.py  # Реализация HH Client
+│   │
+│   ├── analyzer/                          # Микросервис-аналитик
+│   │   ├── Dockerfile
+│   │   ├── pyproject.toml
+│   │   └── app/
+│   │       ├── __init__.py
+│   │       ├── main.py
+│   │       ├── domain/
+│   │       │   ├── __init__.py
+│   │       │   └── services/
+│   │       │       ├── match_evaluator.py
+│   │       │       └── response_generator.py
+│   │       ├── application/
+│   │       │   ├── __init__.py
+│   │       │   └── use_cases/
+│   │       │       ├── analyze_vacancy.py
+│   │       │       └── generate_response.py
+│   │       ├── interfaces/
+│   │       │   ├── __init__.py
+│   │       │   ├── llm_client.py         # Ollama Port
+│   │       │   └── message_handlers.py
+│   │       └── infrastructure/
+│   │           ├── __init__.py
+│   │           └── adapters/
+│   │               └── ollama_client_impl.py
+│   │
+│   └── sender/                            # Микросервис-отправитель
+│       ├── Dockerfile
+│       ├── pyproject.toml
+│       └── app/
+│           ├── __init__.py
+│           ├── main.py
+│           ├── domain/
+│           │   ├── __init__.py
+│           │   └── services/
+│           │       └── rate_limiter.py
+│           ├── application/
+│           │   ├── __init__.py
+│           │   └── use_cases/
+│           │       └── send_response.py
+│           ├── interfaces/
+│           │   ├── __init__.py
+│           │   ├── hh_sender.py          # HH Sender Port
+│           │   └── message_handlers.py
+│           └── infrastructure/
+│               ├── __init__.py
+│               └── adapters/
+│                   └── hh_sender_impl.py
+│
+├── frontend/                               # Фронтенд-файлы
+│   ├── static/
+│   └── templates/
+│
+├── tests/                                  # Тесты
+│   ├── unit/                               # Unit-тесты
+│   ├── integration/                        # Интеграционные тесты
+│   └── e2e/                                # End-to-end тесты
+│
+└── docs/                                   # Документация
+    ├── architecture.md
+    └── ddd_design.md
