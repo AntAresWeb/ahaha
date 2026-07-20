@@ -2,8 +2,8 @@ import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.pool import NullPool
 
-from src.vacancy_analizer.infrastructure.db.models.base import Base
-from src.vacancy_analizer.infrastructure.db.unit_of_work import create_uow_factory
+from shared.infrastructure.models.base import Base
+from shared.infrastructure.database.unit_of_work import create_uow_factory
 
 
 @pytest.fixture

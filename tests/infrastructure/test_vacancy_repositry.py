@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from src.vacancy_analizer.infrastructure.db.models.base import Base
+from shared.infrastructure.models.base import Base
 from src.vacancy_analizer.infrastructure.db.repositories.vacancy_repository import PostgresVacancyRepository
 from src.vacancy_analizer.domain.entities.vacancy import Vacancy
 

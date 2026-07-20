@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.vacancy_analizer.application.ports.vacancy_repository import VacancyRepository
 from src.vacancy_analizer.domain.entities.vacancy import Vacancy
-from src.vacancy_analizer.infrastructure.db.mappers.vacancy_mapper import orm_to_vacancy, vacancy_to_orm_dict
-from src.vacancy_analizer.infrastructure.db.models.vacancy import VacancyORM
+from shared.infrastructure.mappers.vacancy_mapper import orm_to_vacancy, vacancy_to_orm_dict
+from shared.infrastructure.models.vacancy import VacancyORM
 
 logger = logging.getLogger(__name__)
 

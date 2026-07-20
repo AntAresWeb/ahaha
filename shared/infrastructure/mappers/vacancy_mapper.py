@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from typing import Any
 
-from src.vacancy_analizer.domain.entities.vacancy import Vacancy
-from src.vacancy_analizer.infrastructure.db.models.vacancy import VacancyORM
+from shared.domain.entities.vacancy import Vacancy
+from shared.infrastructure.models.vacancy import VacancyORM
 
 
 def vacancy_to_orm(vacancy: Vacancy) -> VacancyORM:

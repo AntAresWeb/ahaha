@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.vacancy_analizer.infrastructure.db.models.base import Base
+from shared.infrastructure.models.base import Base
 
 
 class VacancyORM(Base):
