@@ -3,45 +3,36 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 
-from shared.domain.base.status_entity import StatusEntity
-
-# Константы для валидации
 MIN_MATCH_SCORE = 0
 MAX_MATCH_SCORE = 100
 
 
 class AnalysisStatus(str, Enum):
     """Статус анализа вакансии."""
-    PENDING = "pending"          # Ожидает анализа
-    IN_PROGRESS = "in_progress"  # В процессе
-    COMPLETED = "completed"      # Анализ завершен
-    FAILED = "failed"            # Ошибка анализа
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
 
 
 @dataclass
-class Analysis(StatusEntity[AnalysisStatus]):
+class Analysis:
     """
     Результат анализа соответствия резюме и вакансии.
-
-    Используется:
-    - Analyzer: создает и обновляет
-    - Sender: проверяет статус перед отправкой
-    - Gateway: отображает результаты
     """
-
-    vacancy_id: int                     # Связь с вакансией
-    resume_id: int                      # Связь с резюме
-
-    # Результаты анализа
-    match_score: float | None = None    # Оценка соответствия (0-100)
-    strengths: list[str] = field(default_factory=list)   # Сильные стороны
-    weaknesses: list[str] = field(default_factory=list)  # Слабые стороны
-    analysis_details: str | None = None # Детальный анализ (JSON строка)
-
-    # Статус (переопределяем с дефолтным значением)
+    vacancy_id: int
+    resume_id: int
+    id: int | None = None
+    match_score: float | None = None
+    strengths: list[str] = field(default_factory=list)
+    weaknesses: list[str] = field(default_factory=list)
+    analysis_details: str | None = None
     status: AnalysisStatus = AnalysisStatus.PENDING
-
+    error_message: str | None = None
+    retry_count: int = 0
     completed_at: datetime | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime | None = None
 
     def __post_init__(self) -> None:
         """Валидация после создания."""
@@ -65,13 +56,16 @@ class Analysis(StatusEntity[AnalysisStatus]):
         self.weaknesses = weaknesses
         self.status = AnalysisStatus.COMPLETED
         self.completed_at = datetime.now(timezone.utc)
-        self._update_timestamp()
+        self.updated_at = datetime.now(timezone.utc)
 
     def mark_failed(self, error: str) -> None:
         """Отметить анализ как неудачный."""
-        self.mark_error(error, AnalysisStatus.FAILED)
-        self.completed_at = datetime.now(timezone.utc)
+        self.error_message = error
+        self.retry_count += 1
+        self.status = AnalysisStatus.FAILED
+        self.updated_at = datetime.now(timezone.utc)
 
     def mark_in_progress(self) -> None:
         """Отметить анализ как выполняющийся."""
-        self.mark_status(AnalysisStatus.IN_PROGRESS)
+        self.status = AnalysisStatus.IN_PROGRESS
+        self.updated_at = datetime.now(timezone.utc)

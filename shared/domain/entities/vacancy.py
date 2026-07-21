@@ -7,51 +7,23 @@ from datetime import datetime, timezone
 class Vacancy:
     """
     Вакансия с HeadHunter.
-
-    Используется всеми сервисами:
-    - Fetcher: создает и сохраняет
-    - Analyzer: читает для анализа
-    - Sender: читает для отправки отклика
-    - Gateway: читает для отображения
     """
-
-    # --- Основные идентификаторы ---
-    external_id: str                     # ID вакансии в HH ("133473143")
-    url: str                             # "https://hh.ru/vacancy/133473143"
-    alternate_url: str                   # URL для API
-
-    # --- Название и работодатель ---
-    name: str                            # "Python-разработчик (Django)"
-    employer_id: str                     # "123123"
-    employer_name: str                   # "Shtab"
-    company_logo_url: str | None = None
-
-    # --- Описание ---
-    requirement: str                     # HTML-фрагмент требований
-    responsibility: str                  # HTML-фрагмент обязанностей
-
-    # --- Зарплата ---
-    salary_from: int | None = None       # 150000
-    salary_to: int | None = None         # 180000
-    currency: str = "RUR"                # "RUR"
-    gross: bool = True                   # True = до налогов, False = на руки
-
-    # --- Локация ---
-    city: str | None = None              # "Санкт-Петербург"
-    area_id: str | None = None           # ID региона
-
-    # --- Опыт работы ---
-    experience_id: str | None = None     # "between1And3"
-    experience_name: str | None = None   # "От 1 года до 3 лет"
-
-    # --- Формат работы ---
-    work_format: str = "REMOTE"          # ON_SITE, REMOTE, MIXED
-
-    # --- Метаданные ---
-    published_at: datetime               # Дата публикации
+    external_id: str
+    url: str
+    name: str
+    employer_id: str
+    employer_name: str
+    requirement: str
+    responsibility: str
+    published_at: datetime
+    salary_from: int | None = None
+    salary_to: int | None = None
+    city: str | None = None
+    experience_name: str | None = None
+    work_format: str = "REMOTE"
+    full_text: str | None = None
+    is_archived: bool = False
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    is_archived: bool = False            # Архив (вакансия закрыта)
-    full_text: str | None = None         # Полный текст (подгружается позже)
 
     def __post_init__(self) -> None:
         """Валидация после создания."""

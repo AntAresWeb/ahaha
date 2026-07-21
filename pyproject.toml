@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "aio-pika>=10.0.1",
+    "alembic>=1.18.5",
     "asyncpg>=0.31.0",
     "fastapi>=0.136.3",
     "gigachat>=0.2.1",

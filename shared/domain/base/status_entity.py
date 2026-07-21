@@ -12,15 +12,9 @@ StatusT = TypeVar("StatusT", bound=Enum)
 class StatusEntity(ABC, Generic[StatusT]):
     """
     Базовый класс для сущностей, имеющих статус.
-
-    Предоставляет общую логику работы со статусами:
-    - Хранение статуса
-    - Подсчет попыток
-    - Отслеживание времени создания и обновления
     """
-
     id: int | None = None
-    status: StatusT
+    status: StatusT | None = None
     retry_count: int = 0
     error_message: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

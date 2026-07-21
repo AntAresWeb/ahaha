@@ -1,51 +1,43 @@
 """Сущность Отклик на вакансию."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 
-from shared.domain.base.status_entity import StatusEntity
-
-# Константы для валидации
 MIN_MATCH_SCORE = 0
 MAX_MATCH_SCORE = 100
 
 
 class VacancyReplyStatus(str, Enum):
     """Статус отклика на вакансию."""
-    PENDING = "pending"      # Ожидает анализа
-    READY = "ready"          # Готов к отправке
-    SENT = "sent"            # Отправлен
-    FAILED = "failed"        # Ошибка отправки
-    REJECTED = "rejected"    # Отклонен (не подошел)
+    PENDING = "pending"
+    READY = "ready"
+    SENT = "sent"
+    FAILED = "failed"
+    REJECTED = "rejected"
 
 
 @dataclass
-class VacancyReply(StatusEntity[VacancyReplyStatus]):
+class VacancyReply:
     """
     Отклик на вакансию.
-
-    Используется:
-    - Analyzer: создает после успешного анализа
-    - Sender: отправляет в HH
-    - Gateway: отображает статус откликов
     """
 
-    vacancy_id: int                     # Связь с вакансией
-    resume_id: int                      # Связь с резюме
-    analysis_id: int | None = None      # Связь с анализом
+    # --- ОБЯЗАТЕЛЬНЫЕ ПОЛЯ (без дефолтов) ---
+    vacancy_id: int
+    resume_id: int
 
-    # Содержание отклика
-    cover_letter: str | None = None     # Текст отклика (сгенерированный)
-    match_score: float | None = None    # Оценка на момент создания
-
-    # Статус (переопределяем с дефолтным значением)
+    # --- ОПЦИОНАЛЬНЫЕ ПОЛЯ (с дефолтами) ---
+    id: int | None = None
+    analysis_id: int | None = None
+    cover_letter: str | None = None
+    match_score: float | None = None
     status: VacancyReplyStatus = VacancyReplyStatus.PENDING
-
-    # Внешние идентификаторы
-    message_id: str | None = None       # ID отклика в HH
-
-    # Метрики
+    error_message: str | None = None
+    message_id: str | None = None
+    retry_count: int = 0
     sent_at: datetime | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime | None = None
 
     def __post_init__(self) -> None:
         """Валидация после создания."""
@@ -53,27 +45,39 @@ class VacancyReply(StatusEntity[VacancyReplyStatus]):
             raise ValueError("vacancy_id должен быть положительным")
         if self.resume_id <= 0:
             raise ValueError("resume_id должен быть положительным")
-        if self.match_score is not None and not (MIN_MATCH_SCORE <= self.match_score <= MAX_MATCH_SCORE):
-            raise ValueError(
-                f"match_score должен быть в диапазоне "
-                f"{MIN_MATCH_SCORE}-{MAX_MATCH_SCORE}",
-            )
+        if self.match_score is not None:
+            # Приводим к float, если пришла строка
+            try:
+                score = float(self.match_score)
+            except (TypeError, ValueError) as e:
+                raise ValueError("match_score должен быть числом") from e
+            if not (MIN_MATCH_SCORE <= score <= MAX_MATCH_SCORE):
+                raise ValueError(
+                    f"match_score должен быть в диапазоне "
+                    f"{MIN_MATCH_SCORE}-{MAX_MATCH_SCORE}",
+                )
 
     def mark_ready(self) -> None:
         """Отметить отклик как готовый к отправке."""
-        self.mark_status(VacancyReplyStatus.READY)
+        self.status = VacancyReplyStatus.READY
+        self.updated_at = datetime.now(timezone.utc)
 
     def mark_sent(self, message_id: str) -> None:
         """Отметить отклик как отправленный."""
         self.status = VacancyReplyStatus.SENT
         self.message_id = message_id
         self.sent_at = datetime.now(timezone.utc)
-        self._update_timestamp()
+        self.updated_at = datetime.now(timezone.utc)
 
     def mark_failed(self, error: str) -> None:
         """Отметить отклик как неудачный."""
-        self.mark_error(error, VacancyReplyStatus.FAILED)
+        self.error_message = error
+        self.retry_count += 1
+        self.status = VacancyReplyStatus.FAILED
+        self.updated_at = datetime.now(timezone.utc)
 
     def mark_rejected(self, reason: str) -> None:
         """Отметить отклик как отклоненный."""
-        self.mark_error(reason, VacancyReplyStatus.REJECTED)
+        self.error_message = reason
+        self.status = VacancyReplyStatus.REJECTED
+        self.updated_at = datetime.now(timezone.utc)
