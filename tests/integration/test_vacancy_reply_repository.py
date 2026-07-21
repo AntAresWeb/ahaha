@@ -84,15 +84,15 @@ async def test_get_by_id_not_found(test_session):
 async def test_get_by_vacancy_and_resume(test_session):
     """Тест: получение отклика по вакансии и резюме."""
     repo = PostgresVacancyReplyRepository(test_session)
-    reply = VacancyReplyFactory.create(vacancy_id=10, resume_id=20)
+    reply = VacancyReplyFactory.create(vacancy_id="10", resume_id=20)
     await repo.save(reply)
     
     # Act
-    result = await repo.get_by_vacancy_and_resume(10, 20)
+    result = await repo.get_by_vacancy_and_resume("10", 20)
     
     # Assert
     assert result is not None
-    assert result.vacancy_id == 10
+    assert result.vacancy_id == "10"
     assert result.resume_id == 20
 
 

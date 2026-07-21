@@ -37,7 +37,7 @@ class PostgresAnalysisRepository(AnalysisRepository):
             return None
         return orm_to_analysis(result)
 
-    async def get_by_vacancy_and_resume(self, vacancy_id: int, resume_id: int) -> Analysis | None:
+    async def get_by_vacancy_and_resume(self, vacancy_id: str, resume_id: int) -> Analysis | None:
         """Получить анализ по ID вакансии и резюме."""
         stmt = select(AnalysisORM).where(
             AnalysisORM.vacancy_id == vacancy_id,

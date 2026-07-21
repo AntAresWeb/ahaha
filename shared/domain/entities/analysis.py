@@ -20,7 +20,7 @@ class Analysis:
     """
     Результат анализа соответствия резюме и вакансии.
     """
-    vacancy_id: int
+    vacancy_id: str
     resume_id: int
     id: int | None = None
     match_score: float | None = None
@@ -40,11 +40,16 @@ class Analysis:
             raise ValueError("vacancy_id должен быть положительным")
         if self.resume_id <= 0:
             raise ValueError("resume_id должен быть положительным")
-        if self.match_score is not None and not (MIN_MATCH_SCORE <= self.match_score <= MAX_MATCH_SCORE):
-            raise ValueError(
-                f"match_score должен быть в диапазоне "
-                f"{MIN_MATCH_SCORE}-{MAX_MATCH_SCORE}",
-            )
+        if self.match_score is not None:
+            try:
+                score = float(self.match_score)
+            except (TypeError, ValueError) as e:
+                raise ValueError("match_score должен быть числом") from e
+            if not (MIN_MATCH_SCORE <= score <= MAX_MATCH_SCORE):
+                raise ValueError(
+                    f"match_score должен быть в диапазоне "
+                    f"{MIN_MATCH_SCORE}-{MAX_MATCH_SCORE}",
+                )
 
     def mark_completed(self, score: float, strengths: list[str], weaknesses: list[str]) -> None:
         """Отметить анализ как завершенный."""

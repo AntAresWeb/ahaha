@@ -15,7 +15,7 @@ class AnalysisORM(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
     # Связи с другими таблицами
-    vacancy_id: Mapped[int] = mapped_column(ForeignKey("vacancies.external_id"), nullable=False)
+    vacancy_id: Mapped[str] = mapped_column(ForeignKey("vacancies.external_id"), nullable=False)
     resume_id: Mapped[int] = mapped_column(ForeignKey("resumes.id"), nullable=False)
 
     # Результаты анализа

@@ -37,7 +37,7 @@ class PostgresVacancyReplyRepository(VacancyReplyRepository):
             return None
         return orm_to_vacancy_reply(result)
 
-    async def get_by_vacancy_and_resume(self, vacancy_id: int, resume_id: int) -> VacancyReply | None:
+    async def get_by_vacancy_and_resume(self, vacancy_id: str, resume_id: int) -> VacancyReply | None:
         """Получить отклик по ID вакансии и резюме."""
         stmt = select(VacancyReplyORM).where(
             VacancyReplyORM.vacancy_id == vacancy_id,
@@ -82,7 +82,7 @@ class PostgresVacancyReplyRepository(VacancyReplyRepository):
             return None
         return orm_to_vacancy_reply(orm_reply)
 
-    async def exists_for_vacancy(self, vacancy_id: int) -> bool:
+    async def exists_for_vacancy(self, vacancy_id: str) -> bool:
         """Проверить, существует ли отклик для вакансии."""
         stmt = select(exists().where(VacancyReplyORM.vacancy_id == vacancy_id))
         result = await self._session.execute(stmt)

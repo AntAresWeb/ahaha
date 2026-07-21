@@ -21,12 +21,8 @@ class VacancyReply:
     """
     Отклик на вакансию.
     """
-
-    # --- ОБЯЗАТЕЛЬНЫЕ ПОЛЯ (без дефолтов) ---
-    vacancy_id: int
+    vacancy_id: str
     resume_id: int
-
-    # --- ОПЦИОНАЛЬНЫЕ ПОЛЯ (с дефолтами) ---
     id: int | None = None
     analysis_id: int | None = None
     cover_letter: str | None = None
@@ -41,10 +37,10 @@ class VacancyReply:
 
     def __post_init__(self) -> None:
         """Валидация после создания."""
-        if self.vacancy_id <= 0:
-            raise ValueError("vacancy_id должен быть положительным")
-        if self.resume_id <= 0:
-            raise ValueError("resume_id должен быть положительным")
+        if not self.vacancy_id:
+            raise ValueError("vacancy_id обязательное поле")
+        if not self.resume_id:
+            raise ValueError("resume_id обязательное поле")
         if self.match_score is not None:
             # Приводим к float, если пришла строка
             try:

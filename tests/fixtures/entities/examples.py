@@ -107,7 +107,7 @@ def resume_inactive() -> Resume:
 def analysis_completed() -> Analysis:
     """Завершенный анализ с высокой оценкой."""
     return Analysis(
-        vacancy_id=1,
+        vacancy_id="123456",
         resume_id=1,
         match_score=85.5,
         strengths=["Python", "Docker"],
@@ -120,7 +120,7 @@ def analysis_completed() -> Analysis:
 def analysis_pending() -> Analysis:
     """Анализ в статусе PENDING."""
     return Analysis(
-        vacancy_id=2,
+        vacancy_id="654321",
         resume_id=1,
         status=AnalysisStatus.PENDING,
     )
@@ -130,7 +130,7 @@ def analysis_pending() -> Analysis:
 def analysis_failed() -> Analysis:
     """Анализ со статусом FAILED."""
     return Analysis(
-        vacancy_id=3,
+        vacancy_id="987654",
         resume_id=1,
         status=AnalysisStatus.FAILED,
         error_message="Ошибка LLM: превышен таймаут",
@@ -144,7 +144,7 @@ def analysis_failed() -> Analysis:
 def reply_ready() -> VacancyReply:
     """Отклик со статусом READY."""
     return VacancyReply(
-        vacancy_id=1,
+        vacancy_id="123456",
         resume_id=1,
         cover_letter="Здравствуйте! Заинтересовался вашей вакансией...",
         match_score=85.5,
@@ -156,7 +156,7 @@ def reply_ready() -> VacancyReply:
 def reply_sent() -> VacancyReply:
     """Отправленный отклик."""
     return VacancyReply(
-        vacancy_id=1,
+        vacancy_id="654321",
         resume_id=1,
         cover_letter="Здравствуйте! Заинтересовался вашей вакансией...",
         match_score=85.5,
@@ -170,7 +170,7 @@ def reply_sent() -> VacancyReply:
 def reply_failed() -> VacancyReply:
     """Отклик со статусом FAILED."""
     return VacancyReply(
-        vacancy_id=1,
+        vacancy_id="123456",
         resume_id=1,
         cover_letter="Здравствуйте! Заинтересовался вашей вакансией...",
         match_score=85.5,

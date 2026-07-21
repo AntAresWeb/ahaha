@@ -36,23 +36,19 @@ class PostgresVacancyRepository(VacancyRepository):
             constraint="vacancies_pkey",
             set_={
                 "name": stmt.excluded.name,
+                "employer_id": stmt.excluded.employer_id,
                 "employer_name": stmt.excluded.employer_name,
                 "requirement": stmt.excluded.requirement,
                 "responsibility": stmt.excluded.responsibility,
                 "published_at": stmt.excluded.published_at,
                 "url": stmt.excluded.url,
-                "alternate_url": stmt.excluded.alternate_url,
                 "salary_from": stmt.excluded.salary_from,
                 "salary_to": stmt.excluded.salary_to,
-                "currency": stmt.excluded.currency,
-                "gross": stmt.excluded.gross,
                 "city": stmt.excluded.city,
-                "area_id": stmt.excluded.area_id,
-                "experience_id": stmt.excluded.experience_id,
                 "experience_name": stmt.excluded.experience_name,
                 "work_format": stmt.excluded.work_format,
-                "employer_id": stmt.excluded.employer_id,
-                "company_logo_url": stmt.excluded.company_logo_url,
+                "full_text": stmt.excluded.full_text,
+                "is_archived": stmt.excluded.is_archived,
                 "updated_at": stmt.excluded.updated_at,
             },
         )
@@ -60,7 +56,7 @@ class PostgresVacancyRepository(VacancyRepository):
         result = await self._session.execute(stmt)
         affected_rows = result.rowcount
 
-        logger.info(f"Сохранено/обновлено вакансий: {affected_rows}")
+        logger.info("Сохранено/обновлено вакансий: %s", affected_rows)
         return affected_rows
 
     async def get_by_id(self, external_id: str) -> Vacancy | None:
@@ -79,5 +75,5 @@ class PostgresVacancyRepository(VacancyRepository):
         """Получить вакансии, требующие анализа."""
         # Логика получения вакансий без связанного анализа
         # или с анализом в статусе PENDING
-        # TODO: Реализовать после создания AnalysisORM
+        # TODO@antares: Реализовать после создания AnalysisORM
         return []

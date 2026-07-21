@@ -116,7 +116,7 @@ class AnalysisFactory:
     def create(**kwargs: Any) -> Analysis:
         """Создать анализ с кастомными параметрами."""
         defaults = {
-            "vacancy_id": 1,
+            "vacancy_id": "123456",
             "resume_id": 1,
             "match_score": 85.5,
             "strengths": ["Python", "Docker"],
@@ -158,7 +158,7 @@ class VacancyReplyFactory:
     def create(**kwargs: Any) -> VacancyReply:
         """Создать отклик с кастомными параметрами."""
         defaults = {
-            "vacancy_id": 1,
+            "vacancy_id": "123456",
             "resume_id": 1,
             "cover_letter": "Здравствуйте! Заинтересовался вашей вакансией...",
             "match_score": 85.5,
