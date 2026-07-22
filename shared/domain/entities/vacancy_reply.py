@@ -1,5 +1,5 @@
 """Сущность Отклик на вакансию."""
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 
@@ -32,7 +32,7 @@ class VacancyReply:
     message_id: str | None = None
     retry_count: int = 0
     sent_at: datetime | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime | None = None
     updated_at: datetime | None = None
 
     def __post_init__(self) -> None:
@@ -56,24 +56,20 @@ class VacancyReply:
     def mark_ready(self) -> None:
         """Отметить отклик как готовый к отправке."""
         self.status = VacancyReplyStatus.READY
-        self.updated_at = datetime.now(timezone.utc)
 
     def mark_sent(self, message_id: str) -> None:
         """Отметить отклик как отправленный."""
         self.status = VacancyReplyStatus.SENT
         self.message_id = message_id
         self.sent_at = datetime.now(timezone.utc)
-        self.updated_at = datetime.now(timezone.utc)
 
     def mark_failed(self, error: str) -> None:
         """Отметить отклик как неудачный."""
         self.error_message = error
         self.retry_count += 1
         self.status = VacancyReplyStatus.FAILED
-        self.updated_at = datetime.now(timezone.utc)
 
     def mark_rejected(self, reason: str) -> None:
         """Отметить отклик как отклоненный."""
         self.error_message = reason
         self.status = VacancyReplyStatus.REJECTED
-        self.updated_at = datetime.now(timezone.utc)

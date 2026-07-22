@@ -6,8 +6,6 @@ from shared.infrastructure.models.base import Base
 
 @pytest_asyncio.fixture
 async def test_session():
-    """Создает тестовую сессию с временной БД."""
-    # Используем SQLite в памяти для тестов
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
     
     async with engine.begin() as conn:

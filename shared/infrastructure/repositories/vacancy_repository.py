@@ -23,7 +23,10 @@ class PostgresVacancyRepository(VacancyRepository):
         self._session = session
 
     async def save_batch(self, vacancies: list[Vacancy]) -> int:
-        """Сохранить или обновить список вакансий через UPSERT."""
+        """
+        Сохранить или обновить список вакансий через UPSERT.
+        Использует INSERT ... ON CONFLICT DO UPDATE.
+        """
         if not vacancies:
             return 0
 
@@ -31,25 +34,23 @@ class PostgresVacancyRepository(VacancyRepository):
 
         stmt = insert(VacancyORM).values(values)
 
-        # UPSERT: обновляем все поля при конфликте
         stmt = stmt.on_conflict_do_update(
             constraint="vacancies_pkey",
             set_={
+                "url": stmt.excluded.url,
                 "name": stmt.excluded.name,
                 "employer_id": stmt.excluded.employer_id,
                 "employer_name": stmt.excluded.employer_name,
                 "requirement": stmt.excluded.requirement,
                 "responsibility": stmt.excluded.responsibility,
-                "published_at": stmt.excluded.published_at,
-                "url": stmt.excluded.url,
                 "salary_from": stmt.excluded.salary_from,
                 "salary_to": stmt.excluded.salary_to,
                 "city": stmt.excluded.city,
                 "experience_name": stmt.excluded.experience_name,
                 "work_format": stmt.excluded.work_format,
+                "published_at": stmt.excluded.published_at,
                 "full_text": stmt.excluded.full_text,
                 "is_archived": stmt.excluded.is_archived,
-                "updated_at": stmt.excluded.updated_at,
             },
         )
 
@@ -72,8 +73,9 @@ class PostgresVacancyRepository(VacancyRepository):
         return orm_to_vacancy(orm_vacancy)
 
     async def get_pending_for_analysis(self, limit: int = 100) -> list[Vacancy]:
-        """Получить вакансии, требующие анализа."""
-        # Логика получения вакансий без связанного анализа
-        # или с анализом в статусе PENDING
+        """
+        Получить вакансии, требующие анализа.
+        Возвращает вакансии, у которых нет анализа или анализ в статусе PENDING.
+        """
         # TODO@antares: Реализовать после создания AnalysisORM
         return []

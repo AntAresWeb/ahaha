@@ -1,6 +1,6 @@
 """Сущность Резюме."""
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 @dataclass
@@ -14,7 +14,8 @@ class Resume:
     hh_resume_id: str | None = None
     skills: list[str] = field(default_factory=list)
     is_active: bool = True
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     def __post_init__(self) -> None:
         """Валидация после создания."""
