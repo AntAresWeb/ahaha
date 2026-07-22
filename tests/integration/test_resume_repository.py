@@ -81,7 +81,6 @@ async def test_list_active(test_session):
     """Тест: получение всех активных резюме."""
     repo = PostgresResumeRepository(test_session)
     
-    # Создаем активные и неактивные резюме
     active1 = ResumeFactory.create(profession="Dev1")
     active2 = ResumeFactory.create(profession="Dev2")
     inactive = ResumeFactory.create(profession="Dev3", is_active=False)

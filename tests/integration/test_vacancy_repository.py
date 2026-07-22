@@ -27,12 +27,10 @@ async def test_save_batch_updates_existing_vacancies(test_session):
     repo = PostgresVacancyRepository(test_session)
     vacancy = VacancyFactory.create(name="Python Developer")
 
-    # Сохраняем вакансию
     await repo.save_batch([vacancy])
     saved = await repo.get_by_id(vacancy.external_id)
     assert saved.name == "Python Developer"
     
-    # Обновляем вакансию
     updated_vacancy = VacancyFactory.create(
         external_id=vacancy.external_id,
         name="Senior Python Developer",
@@ -40,7 +38,6 @@ async def test_save_batch_updates_existing_vacancies(test_session):
     )
     await repo.save_batch([updated_vacancy])
     
-    # Проверяем обновление
     updated = await repo.get_by_id(vacancy.external_id)
     assert updated is not None
     assert updated.name == "Senior Python Developer"
