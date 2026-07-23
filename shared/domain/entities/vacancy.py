@@ -1,6 +1,13 @@
 """Сущность Вакансия."""
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+
+
+class VacancyStatus(str, Enum):
+    NEW = "new"
+    FILTERED = "filtered"
+    ARCHIVED = "archived"
 
 
 @dataclass
@@ -22,9 +29,10 @@ class Vacancy:
     experience_name: str | None = None
     work_format: str = "REMOTE"
     full_text: str | None = None
-    is_archived: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    status: VacancyStatus = VacancyStatus.NEW
+
 
     def __post_init__(self) -> None:
         """Валидация после создания."""

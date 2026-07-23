@@ -1,7 +1,8 @@
 """ORM-модель для таблицы вакансий."""
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy import DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from shared.domain.entities.vacancy import VacancyStatus
 from shared.infrastructure.models.base import Base
 
 
@@ -39,7 +40,7 @@ class VacancyORM(Base):
     # --- Метаданные ---
     published_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     full_text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    is_archived: Mapped[bool] = mapped_column(Boolean, default=False)
+    status: Mapped[str] = mapped_column(String(20), default=VacancyStatus.NEW.value)
 
     def __repr__(self) -> str:
         return f"<VacancyORM(external_id={self.external_id}, name={self.name})>"

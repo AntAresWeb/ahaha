@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class PostgresVacancyRepository(VacancyRepository):
-    """Реализация репозитория вакансий на PostgreSQL."""
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
@@ -50,7 +49,6 @@ class PostgresVacancyRepository(VacancyRepository):
                 "work_format": stmt.excluded.work_format,
                 "published_at": stmt.excluded.published_at,
                 "full_text": stmt.excluded.full_text,
-                "is_archived": stmt.excluded.is_archived,
             },
         )
 
@@ -75,7 +73,7 @@ class PostgresVacancyRepository(VacancyRepository):
     async def get_pending_for_analysis(self, limit: int = 100) -> list[Vacancy]:
         """
         Получить вакансии, требующие анализа.
-        Возвращает вакансии, у которых нет анализа или анализ в статусе PENDING.
+        Возвращает вакансии, у которых статус FILTERED.
         """
         # TODO@antares: Реализовать после создания AnalysisORM
         return []

@@ -27,7 +27,7 @@ def orm_to_vacancy(orm: VacancyORM) -> Vacancy:
         work_format=orm.work_format,
         published_at=orm.published_at,
         full_text=orm.full_text,
-        is_archived=orm.is_archived,
+        status=orm.status,
         created_at=orm.created_at,
         updated_at=orm.updated_at,
     )
@@ -49,7 +49,7 @@ def vacancy_to_orm_dict(vacancy: Vacancy) -> dict[str, Any]:
         "work_format": vacancy.work_format or "REMOTE",
         "published_at": vacancy.published_at,
         "full_text": vacancy.full_text,
-        "is_archived": vacancy.is_archived,
+        "status": vacancy.status,
     }
     if vacancy.external_id:
         data["external_id"] = vacancy.external_id
