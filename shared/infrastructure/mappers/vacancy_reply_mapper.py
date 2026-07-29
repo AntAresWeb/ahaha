@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from typing import Any
 
 from shared.domain.entities.vacancy_reply import VacancyReply, VacancyReplyStatus
@@ -7,19 +6,7 @@ from shared.infrastructure.models.vacancy_reply import VacancyReplyORM
 
 def vacancy_reply_to_orm(reply: VacancyReply) -> VacancyReplyORM:
     """Преобразует доменную сущность VacancyReply в ORM-модель."""
-    return VacancyReplyORM(
-        id=reply.id,
-        vacancy_id=reply.vacancy_id,
-        resume_id=reply.resume_id,
-        analysis_id=reply.analysis_id,
-        cover_letter=reply.cover_letter,
-        match_score=reply.match_score,
-        status=reply.status.value,
-        error_message=reply.error_message,
-        message_id=reply.message_id,
-        retry_count=reply.retry_count,
-        sent_at=reply.sent_at,
-    )
+    return VacancyReplyORM(**vacancy_reply_to_orm_dict(reply))
 
 
 def orm_to_vacancy_reply(orm: VacancyReplyORM) -> VacancyReply:
@@ -43,8 +30,7 @@ def orm_to_vacancy_reply(orm: VacancyReplyORM) -> VacancyReply:
 
 def vacancy_reply_to_orm_dict(reply: VacancyReply) -> dict[str, Any]:
     """Преобразует доменную сущность в словарь для ORM."""
-    return {
-        "id": reply.id,
+    data = {
         "vacancy_id": reply.vacancy_id,
         "resume_id": reply.resume_id,
         "analysis_id": reply.analysis_id,
@@ -55,5 +41,8 @@ def vacancy_reply_to_orm_dict(reply: VacancyReply) -> dict[str, Any]:
         "message_id": reply.message_id,
         "retry_count": reply.retry_count,
         "sent_at": reply.sent_at,
-        "updated_at": datetime.now(timezone.utc),
     }
+    if reply.id:
+        data["id"] = reply.id
+
+    return data

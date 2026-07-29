@@ -1,5 +1,4 @@
 """Маппер для преобразования между Vacancy и VacancyORM."""
-from datetime import datetime, timezone
 from typing import Any
 
 from shared.domain.entities.vacancy import Vacancy
@@ -8,23 +7,7 @@ from shared.infrastructure.models.vacancy import VacancyORM
 
 def vacancy_to_orm(vacancy: Vacancy) -> VacancyORM:
     """Преобразует доменную сущность в ORM-модель."""
-    return VacancyORM(
-        external_id=vacancy.external_id,
-        url=vacancy.url,
-        name=vacancy.name,
-        employer_id=vacancy.employer_id,
-        employer_name=vacancy.employer_name,
-        requirement=vacancy.requirement or "",
-        responsibility=vacancy.responsibility or "",
-        salary_from=vacancy.salary_from,
-        salary_to=vacancy.salary_to,
-        city=vacancy.city,
-        experience_name=vacancy.experience_name,
-        work_format=vacancy.work_format or "REMOTE",
-        published_at=vacancy.published_at,
-        full_text=vacancy.full_text,
-        is_archived=vacancy.is_archived,
-    )
+    return VacancyORM(**vacancy_to_orm_dict(vacancy))
 
 
 def orm_to_vacancy(orm: VacancyORM) -> Vacancy:
@@ -44,15 +27,15 @@ def orm_to_vacancy(orm: VacancyORM) -> Vacancy:
         work_format=orm.work_format,
         published_at=orm.published_at,
         full_text=orm.full_text,
-        is_archived=orm.is_archived,
+        status=orm.status,
         created_at=orm.created_at,
+        updated_at=orm.updated_at,
     )
 
 
 def vacancy_to_orm_dict(vacancy: Vacancy) -> dict[str, Any]:
     """Преобразует доменную сущность в словарь для ORM (для UPSERT)."""
-    return {
-        "external_id": vacancy.external_id,
+    data = {
         "url": vacancy.url,
         "name": vacancy.name,
         "employer_id": vacancy.employer_id,
@@ -66,6 +49,9 @@ def vacancy_to_orm_dict(vacancy: Vacancy) -> dict[str, Any]:
         "work_format": vacancy.work_format or "REMOTE",
         "published_at": vacancy.published_at,
         "full_text": vacancy.full_text,
-        "is_archived": vacancy.is_archived,
-        "updated_at": datetime.now(timezone.utc),  # Для Base.updated_at
+        "status": vacancy.status,
     }
+    if vacancy.external_id:
+        data["external_id"] = vacancy.external_id
+
+    return data

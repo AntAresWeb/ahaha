@@ -31,24 +31,29 @@ class Analysis:
     error_message: str | None = None
     retry_count: int = 0
     completed_at: datetime | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime | None = None
     updated_at: datetime | None = None
+
 
     def __post_init__(self) -> None:
         """Валидация после создания."""
-        if self.vacancy_id <= 0:
-            raise ValueError("vacancy_id должен быть положительным")
+        if not self.vacancy_id:  # Проверяем, что строка не пустая
+            raise ValueError("vacancy_id не может быть пустым")
         if self.resume_id <= 0:
             raise ValueError("resume_id должен быть положительным")
+
         if self.match_score is not None:
             try:
                 score = float(self.match_score)
             except (TypeError, ValueError) as e:
-                raise ValueError("match_score должен быть числом") from e
+                raise ValueError(
+                    f"match_score должен быть числом, получено {type(self.match_score).__name__}: {self.match_score}",
+                ) from e
+
             if not (MIN_MATCH_SCORE <= score <= MAX_MATCH_SCORE):
                 raise ValueError(
                     f"match_score должен быть в диапазоне "
-                    f"{MIN_MATCH_SCORE}-{MAX_MATCH_SCORE}",
+                    f"{MIN_MATCH_SCORE}-{MAX_MATCH_SCORE}, получено {score}",
                 )
 
     def mark_completed(self, score: float, strengths: list[str], weaknesses: list[str]) -> None:
@@ -61,16 +66,13 @@ class Analysis:
         self.weaknesses = weaknesses
         self.status = AnalysisStatus.COMPLETED
         self.completed_at = datetime.now(timezone.utc)
-        self.updated_at = datetime.now(timezone.utc)
 
     def mark_failed(self, error: str) -> None:
         """Отметить анализ как неудачный."""
         self.error_message = error
         self.retry_count += 1
         self.status = AnalysisStatus.FAILED
-        self.updated_at = datetime.now(timezone.utc)
 
     def mark_in_progress(self) -> None:
         """Отметить анализ как выполняющийся."""
         self.status = AnalysisStatus.IN_PROGRESS
-        self.updated_at = datetime.now(timezone.utc)
